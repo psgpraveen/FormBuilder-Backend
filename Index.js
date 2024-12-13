@@ -118,8 +118,9 @@ app.post("/submit", async (req, res) => {
 });
 
 app.post("/submit-ans", async (req, res) => {
-  const { email, title, responses } = req.body;
-
+  const { fromEmail,userEmail, name,title, responses } = req.body;
+  
+const email =fromEmail;
   if (!email || !title || !responses) {
     return res.status(400).json({ message: 'Email, title, and responses are required' });
   }
@@ -143,8 +144,7 @@ app.post("/submit-ans", async (req, res) => {
     if (!form.ResponseofQuestions) {
       form.ResponseofQuestions = [];
     }
-    console.log(form);
-    form.ResponseofQuestions[form.ResponseofQuestions.length]=responses;
+    form.ResponseofQuestions[form.ResponseofQuestions.length]=[userEmail,name,responses];
 
     await user.save();
 
@@ -181,7 +181,6 @@ app.get('/get-responses/:email/:title', async (req, res) => {
 
 app.get('/get-questions/:email/:title', async (req, res) => {
   const { email, title } = req.params;
-  console.log(req.params);
   
 
   try {
@@ -209,7 +208,6 @@ app.get('/',(req,res)=>{
 
 app.post("/delete-form", async (req, res) => {
   const { email, title } = req.body;
-  console.log(req.body);
 
   try {
     const user = await FormDat.findOne({ Email: email });
