@@ -202,7 +202,9 @@ app.get('/get-questions/:email/:title', async (req, res) => {
   }
 });
 
-
+app.get('/',(req,res)=>{
+  res.send("Aur Brother Kya hal h!")
+})
 
 
 app.post("/delete-form", async (req, res) => {
