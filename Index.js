@@ -5,7 +5,6 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
-
 const app = express();
 
 app.use(bodyParser.json());
@@ -23,7 +22,7 @@ const formSchema = new mongoose.Schema({
   questions: { type: Object },
 
   formsName: [
-    {
+    {   id :{type:Number},
       title: { type: String },
       questions: { type: Array },
       ResponseofQuestions: { type: Array } 
@@ -64,10 +63,12 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/submit-form', async (req, res) => {
-  const { email, password, questions ,title} = req.body;
-
-  if (!email || !password || !questions) {
-    console.log('Email, password, and form questions are required');
+  const { formData} = req.body;
+   let email = formData.email;
+   let password = formData.password;
+   let questions = formData.questions;
+   let title = formData.title;
+  if (!formData.email || !formData.password || !questions) {
 
     return res.status(400).json({ message: 'Email, password, and form questions are required' });
   }
@@ -82,8 +83,11 @@ app.post('/submit-form', async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid password' });
     }
-    let size = user.formsName.length;
-    user.formsName[size] = {questions,title};
+    
+    let id = user.formsName.length;
+    console.log(id);
+    
+    user.formsName[id] = {questions,title};
     await user.save();
     res.status(200).json({ message: 'Form questions saved successfully' });
   } catch (error) {
@@ -200,6 +204,40 @@ app.get('/get-questions/:email/:title', async (req, res) => {
     res.status(500).json({ error: 'An unexpected error occurred' });
   }
 });
+
+app.post('/update-form', async (req, res) => {
+  const { formData} = req.body;
+  
+  
+  if (!formData.email || !formData.title || !formData.questions || !formData.password) {
+    return res.status(400).json({ message: 'Email, title, and updated questions are required' });
+  }
+  
+  try {
+    const user = await FormDat.findOne({ Email: formData.email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const isPasswordValid = await bcrypt.compare(formData.password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+    const form = user.formsName.find((form) => form._id.toString() ===   formData.ID);
+    
+    if (!form) {
+      return res.status(404).json({ message: `Form with title '${formData.title}' not found` });
+    }
+  
+  form.questions = formData.questions;
+  form.title = formData.title;
+  await user.save();
+    res.status(200).json({ message: 'Form updated successfully', form });
+  } catch (error) {
+    console.error('Error updating form:', error);
+    res.status(500).json({ error: 'An unexpected error occurred' });
+  }
+});
+
 
 app.get('/',(req,res)=>{
   res.send("Aur Brother Kya hal h!")
