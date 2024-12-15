@@ -44,11 +44,13 @@ mongoose
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
+
   try {
     const user = await FormDat.findOne({ Email: email });
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
+console.log(user);
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
@@ -271,7 +273,11 @@ app.post("/delete-form", async (req, res) => {
 
 app.post('/formname',async(req,res)=>{
   try {
-    const Formsdata= await FormDat.findOne(req.email)
+    console.log( req.body.email);
+    
+    const Formsdata= await FormDat.findOne({ Email: req.body.email })
+    
+    console.log("Email23",Formsdata);
     if (Formsdata) {
       res.status(200).json(Formsdata)
     }
