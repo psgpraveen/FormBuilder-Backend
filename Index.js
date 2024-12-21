@@ -50,7 +50,6 @@ app.post('/login', async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
-console.log(user);
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
@@ -87,7 +86,6 @@ app.post('/submit-form', async (req, res) => {
     }
     
     let id = user.formsName.length;
-    console.log(id);
     
     user.formsName[id] = {questions,title};
     await user.save();
@@ -188,14 +186,14 @@ app.get('/get-responses/:email/:title', async (req, res) => {
 app.get('/get-questions/:email/:title', async (req, res) => {
   const { email, title } = req.params;
   
-
+  
   try {
     const user = await FormDat.findOne({ Email: email });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-
-    const form = user.formsName.find((form) => form.title === title);
+    
+    const form = user.formsName.find((form) => form.title.trim() === title.trim());
     if (!form) {
       return res.status(404).json({ message: `Form with title '${title}' not found` });
     }
@@ -273,11 +271,9 @@ app.post("/delete-form", async (req, res) => {
 
 app.post('/formname',async(req,res)=>{
   try {
-    console.log( req.body.email);
     
     const Formsdata= await FormDat.findOne({ Email: req.body.email })
     
-    console.log("Email23",Formsdata);
     if (Formsdata) {
       res.status(200).json(Formsdata)
     }
