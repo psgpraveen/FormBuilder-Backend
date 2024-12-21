@@ -171,7 +171,7 @@ app.get('/get-responses/:email/:title', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const form = user.formsName.find((form) => form.title === title);
+    const form = user.formsName.find((form) => form.title.trim() === title.trim());
     if (!form) {
       return res.status(404).json({ message: `Form with title '${title}' not found` });
     }
